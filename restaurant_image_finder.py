@@ -1,34 +1,26 @@
 import httplib2 # http client library
 import json # converting in-memory python objects into json
+import sys
+import codecs
+from geocode_locator import get_geocode_location
 
-
-def get_geocode_location(inputString):
-	google_api_key = "" # input Google API key here
-	locationString = inputString.replace(" ", "+")
-	url = ("https://maps.googleapis.com/maps/api/geocode/json?address=%s&key=%s" % 
-		   (locationString, google_api_key))
-	try:
-		h = httplib2.Http()
-		response, content = h.request(url, 'GET')
-		result_data = json.loads(content)
-		return tuple(result_data['results'][0]['geometry']['location'].values())
-	except AttributeError, e:
-		logger.exception('No credentials')
-		logger.exception(e)
-
-	return result_data
+sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+sys.stderr = codecs.getwriter('utf8')(sys.stdout)
 
 def findARestaurant(mealType, location):
+	global client_id
+	global client_secret
 	lat, lng = get_geocode_location(location)
-	
-	client_id = "" # input Foursquare Client ID
-	client_secret = "" # input Foursquare Client Secret
 
-	foursquare_url = "https://api.foursquare.com/v2/venues/search?client_id={}&client_secret={}&v=20130815&ll={},{}&query={}".format(
-					 client_id, client_secret, lat, lng, mealType)
+	foursquare_url = "https://api.foursquare.com/v2/venues/search?client_id=%s&client_secret=%s&v=20130815&ll=%s,%s&query=%s" % (client_id, client_secret, lat, lng, mealType)
 	h = httplib2.Http()
-	content = h.request(foursquare_url, 'GET')[1]
+	response, content = h.request(foursquare_url, 'GET')
 	api_data = json.loads(content)
+
+	print mealType, location
+	print response
+	print api_data
+
 
 	if api_data['response']['venues']:
 		restaurant = api_data['response']['venues'][0]
@@ -40,8 +32,7 @@ def findARestaurant(mealType, location):
 			address += i + " "
 		restaurant_address = address
 
-		url = 'https://api.foursquare.com/v2/venues/{}/photos?client_id={}&v=20150603&client_secret={}'.format(
-			  venue_id, client_id, client_secret)
+		url = 'https://api.foursquare.com/v2/venues/%s/photos?client_id=%s&v=20150603&client_secret=%s' % (venue_id, client_id, client_secret)
 
 		content_str = h.request(url, 'GET')[1]
 		content = json.loads(content_str)
@@ -59,13 +50,13 @@ def findARestaurant(mealType, location):
 		print "Restaurant Name: %s" % restaurant_info['name']
 		print "Restaurant Address: %s" % restaurant_info['address']
 		print "Image: %s" % restaurant_info['image']
-		return restaurant_info
 
 	else:
 		return "No Restaurants Found"
 
 
-restaurants = {"Pizza": "Tokyo, Japan",
+restaurants = {"Burmese": "San Francisco, California",
+			   "Pizza": "Tokyo, Japan",
 			   "Tacos": "Jakarta, Indonesia",
 			   "Tapas": "Maputo, Mozambique",
 			   "Falafel": "Cairo, Egypt",
