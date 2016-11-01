@@ -12,6 +12,6 @@ def get_geocode_location(inputString):
 	response, content = h.request(url, 'GET')
 	result_data = json.loads(content)
 	lat = result_data['results'][0]['geometry']['location']['lat']
-	lng = result_data['results'][0]['geometry']['location']['lat']
+	lng = result_data['results'][0]['geometry']['location']['lng']
 
 	return (lat, lng)
