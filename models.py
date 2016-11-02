@@ -9,25 +9,28 @@ from sqlalchemy import create_engine
 Base = declarative_base()
 
 # Create child class that inherits Base attributes and functions
-class Puppy(Base):
+class Restaurant(Base):
 	# set title
-	__tablename__ = 'puppy'
+	__tablename__ = 'restaurant sql table' # initialize title
 
 	# set 3 columns
-	name = Column(String(80), nullable=False)
-	id = Column(Integer, primary_key=True)
-	description = Column(String(250))
+	id = Column(Integer, primary_key=True) # primary_key is a list of column objects
+	restaurant_name = Column(String)
+	restaurant_address = Column(String)
+	restaurant_image = Column(String)
 
-	# serialize
-	@property
+	@property # using the property function can produce modified behavior for an attribute
+	# also to serialize information from database
 	def serialize(self):
 		return {
-				 'id': self.id,
-				 'name': self.name,
-				 'description': self.description
+			'id': self.id,
+			'restaurant_name': self.restaurant_name,
+			'restaurant_address': self.restaurant_address,
+			'restaurant_image': self.restaurant_image
 		}
 
 
-
-engine = create_engine('sqlite:///puppies.db')
+# create an engine instance that indicates database dialect, url is a string
+engine = create_engine('sqlite:///restaurants.db')
+# metadata subclass
 Base.metadata.create_all(engine)
