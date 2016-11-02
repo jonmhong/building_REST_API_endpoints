@@ -4,8 +4,10 @@ import sys
 import codecs
 from geocode_locator import get_geocode_location
 
-sys.stdout = codecs.getwriter('utf8')(sys.stdout)
-sys.stderr = codecs.getwriter('utf8')(sys.stdout)
+
+client_id = "AYK0HLOF0SGPJGKMDWJDXBWN2VE55DY2UIH1UV4CF0TXRJC4"
+client_secret = "Y31ZKBXCOICMWNY1LCRT4G5DS2TTY14TII0P4HR3PMEGH3PN"
+
 
 def findARestaurant(mealType, location):
 	global client_id
@@ -14,13 +16,8 @@ def findARestaurant(mealType, location):
 
 	foursquare_url = "https://api.foursquare.com/v2/venues/search?client_id=%s&client_secret=%s&v=20130815&ll=%s,%s&query=%s" % (client_id, client_secret, lat, lng, mealType)
 	h = httplib2.Http()
-	response, content = h.request(foursquare_url, 'GET')
-	api_data = json.loads(content)
-
-	print mealType, location
-	print response
-	print api_data
-
+	response, result = h.request(foursquare_url, 'GET')
+	api_data = json.loads(result)
 
 	if api_data['response']['venues']:
 		restaurant = api_data['response']['venues'][0]
@@ -34,7 +31,7 @@ def findARestaurant(mealType, location):
 
 		url = 'https://api.foursquare.com/v2/venues/%s/photos?client_id=%s&v=20150603&client_secret=%s' % (venue_id, client_id, client_secret)
 
-		content_str = h.request(url, 'GET')[1]
+		_, content_str = h.request(url, 'GET')
 		content = json.loads(content_str)
 
 		if content['response']['photos']['items']:
@@ -44,12 +41,10 @@ def findARestaurant(mealType, location):
 			image_url = prefix + '300x300' + suffix
 		else:
 			# else input random image of burger
-			image_url = "http://pixabay.com/get/8926af5eb597ca51ca4c/1433440765/cheeseburger-34314_1280.png?direct"
+			restaurant_image = "http://pixabay.com/get/8926af5eb597ca51ca4c/1433440765/cheeseburger-34314_1280.png?direct"
 
-		restaurant_info = {'name': restaurant_name, 'address': restaurant_address, 'image': image_url}
-		print "Restaurant Name: %s" % restaurant_info['name']
-		print "Restaurant Address: %s" % restaurant_info['address']
-		print "Image: %s" % restaurant_info['image']
+		restaurant_info = {'name': restaurant_name, 'address': restaurant_address, 'image': restaurant_image}
+		return restaurant_info
 
 	else:
 		return "No Restaurants Found"
