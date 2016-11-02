@@ -10,18 +10,6 @@ import codecs
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 sys.stderr = codecs.getwriter('utf8')(sys.stderr)
 
-foursquare_client_id = 'AYK0HLOF0SGPJGKMDWJDXBWN2VE55DY2UIH1UV4CF0TXRJC4'
-foursquare_secret_id = 'Y31ZKBXCOICMWNY1LCRT4G5DS2TTY14TII0P4HR3PMEGH3PN'
-google_api_key = 'AIzaSyANbOmmApPNwoUOJ_u1q4MnohifOsMAO9A'
-
-### INSTRUCTIONS ###
-# endpoint that takes in a city name and mealtype
-# geocodes the location
-# finds a nearby restaurant with that mealtype
-# stores it in the database
-# returns it in the json object
-### INSTRUCTIONS ###
-
 # 1 create engine
 engine = create_engine('sqlite:///restaurants.db')
 # 2 bind metadata to engine
@@ -36,7 +24,6 @@ app = Flask(__name__)
 
 @app.route('/restaurants', methods=['GET', 'POST'])
 def all_restaurants_handler():
-	# BUG in GET
 	if request.method == 'GET':
 		restaurants = session.query(Restaurant).all()
 		return jsonify(restaurants=[i.serialize for i in restaurants])
@@ -48,8 +35,8 @@ def all_restaurants_handler():
 
 		if restaurant_info != "No Restaurants Found":
 			restaurant = Restaurant(restaurant_name=unicode(restaurant_info['name']), 
-									restaurant_address=unicode(restaurant_info['address']),
-									restaurant_image=restaurant_info['image'])
+						restaurant_address=unicode(restaurant_info['address']),
+						restaurant_image=restaurant_info['image'])
 			session.add(restaurant)
 			session.commit()
 			return jsonify(restaurant=[restaurant.serialize])
@@ -65,7 +52,6 @@ def restaurant_handler(id):
 		return jsonify(restaurant=restaurant.serialize)
 
 	elif request.method == 'PUT':
-		# update a specific restaurant
 		address = request.args.get('address')
 		image = request.args.get('image')
 		name = request.args.get('name')
