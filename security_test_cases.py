@@ -13,12 +13,13 @@ if address == '':
 # Test 1: Make a new user
 try:
 	h = Http()
-	h.add_credentials('jonmhong', 'Hello World!')
-	user_info = dict(username='jonmhong',
-					 password='Hello World!',
-					 )
+	user = dict(username='jonmhong', password='Hello World!')
+	user_info = json.dumps(user)
 	url = address + '/users'
-	response, result = h.request(url, 'POST')
+	response, result = h.request(url, 'POST', body=user_info, headers={"Content-Type": "applications/json"})
+	print response['status']
+	print response
+	print result
 	if response['status'] != '201' and response['status'] != '200':
 		raise Exception('Received an unsuccessful status code of %s' % response['status'])
 
@@ -29,14 +30,37 @@ else:
 	print "Test 1 PASS: Successfully made new user"
 
 
+# Test 1b: Get new user
+try:
+	h = Http()
+	user = dict(username='jonmhong', password='Hello World!')
+	user_info = json.dumps(user)
+	url = address + '/users/jonmhong'
+	response, result = h.request(url, 'GET', body=user_info, headers={"Content-Type": "applications/json"})
+	print response['status']
+	print response
+	if response['status'] != '201' and response['status'] != '200':
+		raise Exception("Received an unsuccessful response status of %s" % response['status'])
+
+except Exception as err:
+	print "Test 1b FAILED"
+	print err.args
+
+else:
+	print "Test 1b PASS"
+
+
 
 # Test 2: Add linkedin link to database
 try:
 	h = Http()
 	h.add_credentials('jonmhong', 'Hello World!')
 	url = address + '/linkedin'
-	user_data = dict(username='jonmhong', password='Hello World!', name='Jon Hong', link='https://linkedin.com/in/jonhong', description='jon hong\'s linkedin')
-	response, result = h.request(url, 'POST', body=json.dups(user_data), headers={'Content-Type': 'application/json'})
+	user = dict(username='jonmhong', password='Hello World!', name='Jon Hong', link='https://linkedin.com/in/jonhong', description='jon hong\'s linkedin')
+	user_info = json.dumps(user)
+	response, result = h.request(url, 'POST', body=user_info, headers={'Content-Type': 'application/json'})
+	print response['status']
+	print response
 	if response['status'] != '200':
 		raise Exception('Received an unsuccessful status code of %s' % response['status'])
 
@@ -53,8 +77,8 @@ try:
 	h = Http()
 	h.add_credentials('jon m hong', 'hello world')
 	url = address + '/linkedin'
-	user_data = dict(username='jonmhong', password='Hello World!', name='Jon Hong', link='https://linkedin.com/in/jonhong', description='jon hong\'s linkedin')
-	response, result = h.request(url, 'GET', urlencode(user_data))
+	user_info = dict(username='jonmhong', password='Hello World!', name='Jon Hong', link='https://linkedin.com/in/jonhong', description='jon hong\'s linkedin')
+	response, result = h.request(url, 'GET', urlencode(user_info))
 	if response['status'] == '200':
 		raise Exception("Security Flaw: able to log in with invalid credentials")
 
