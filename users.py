@@ -20,6 +20,22 @@ class User(Base):
 	def verify_password(self, password):
 		# print True if the password is found in the hash
 		return pwd_conext.verify(password, self.password_hash)
+	
+	
+class LinkedIn(Base):
+	__tablename__ = 'LinkedIn'
+	id = Column(Integer, primary_key=True)
+	name = Column(String)
+	link  = Column(String)
+	description = Column(String)
+	
+	@property
+	def serialize(self):
+		return {
+			'name': self.name,
+			'link': self.link,
+			'description': self.description
+		}
 
 
 
